@@ -1,0 +1,38 @@
+{
+    "name": "com.akshay.devanagari-text-engine",
+    "version": "1.0.0",
+    "displayName": "Devanagari Text Engine",
+    "description": "Full Devanagari text support for Unity — Hindi and Marathi. Provides text detection, NFC normalization, numeral conversion, text search, and zero-config components for TextMeshPro, legacy Text, and UI Toolkit.",
+    "unity": "2019.4",
+    "unityRelease": "0f1",
+    "documentationUrl": "https://github.com/akshay/devanagari-text-engine",
+    "changelogUrl": "https://github.com/akshay/devanagari-text-engine/blob/main/CHANGELOG.md",
+    "licensesUrl": "https://github.com/akshay/devanagari-text-engine/blob/main/LICENSE.md",
+    "keywords": [
+        "hindi",
+        "marathi",
+        "devanagari",
+        "text",
+        "textmeshpro",
+        "localization",
+        "i18n",
+        "indic",
+        "normalization",
+        "numeral"
+    ],
+    "author": {
+        "name": "Akshay Kadam",
+        "email": "akshayykadam96@gmail.com",
+        "url": "https://github.com/Akshayykadam"
+    },
+    "dependencies": {
+        "com.unity.textmeshpro": "3.0.0"
+    },
+    "samples": [
+        {
+            "displayName": "Demo Scene",
+            "description": "Complete demo showcasing Devanagari text processing for Hindi and Marathi",
+            "path": "Samples~/DemoScene"
+        }
+    ]
+}
