@@ -69,6 +69,10 @@ namespace DevanagariText.Components
         private bool _legacyMode = true;
         
         [SerializeField]
+        [Tooltip("TMP Font Asset name for English/Latin text when using Legacy Mode (e.g. 'LiberationSans SDF'). Leave empty to skip font-switching.")]
+        private string _fallbackFontName = "LiberationSans SDF";
+        
+        [SerializeField]
         [Tooltip("Numeral display mode: None (keep as-is), Devanagari (0→०), or Western (०→0)")]
         private NumeralMode _numeralMode = NumeralMode.None;
         
@@ -372,7 +376,7 @@ namespace DevanagariText.Components
             // This happens LAST because the input is usually Unicode.
             if (_legacyMode)
             {
-                result = KrutidevConverter.Convert(result);
+                result = KrutidevConverter.Convert(result, _fallbackFontName);
             }
             
             return result;

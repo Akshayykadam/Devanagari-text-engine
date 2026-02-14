@@ -34,6 +34,10 @@ namespace DevanagariText.Components
         private bool _legacyMode = true;
         
         [SerializeField]
+        [Tooltip("TMP Font Asset name for English/Latin text in Legacy Mode")]
+        private string _fallbackFontName = "LiberationSans SDF";
+        
+        [SerializeField]
         [Tooltip("Numeral display mode")]
         private NumeralMode _numeralMode = NumeralMode.None;
         
@@ -92,7 +96,7 @@ namespace DevanagariText.Components
                         // Let's assume if it has Devanagari chars, Convert.
                         if (DevanagariTextProcessor.NeedsProcessing(original))
                         {
-                            placeholderDetails.text = KrutidevConverter.Convert(original);
+                            placeholderDetails.text = KrutidevConverter.Convert(original, _fallbackFontName);
                         }
                     }
                 }
@@ -150,7 +154,7 @@ namespace DevanagariText.Components
             
             if (_legacyMode)
             {
-                result = KrutidevConverter.Convert(result);
+                result = KrutidevConverter.Convert(result, _fallbackFontName);
             }
             
             return result;

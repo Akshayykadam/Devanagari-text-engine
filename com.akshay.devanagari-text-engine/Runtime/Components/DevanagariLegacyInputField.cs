@@ -81,7 +81,7 @@ namespace DevanagariText.Components
                         string original = placeholderText.text;
                         if (DevanagariTextProcessor.NeedsProcessing(original))
                         {
-                            placeholderText.text = KrutidevConverter.Convert(original);
+                            placeholderText.text = KrutidevConverter.Convert(original, null);
                         }
                     }
                 }
@@ -131,7 +131,7 @@ namespace DevanagariText.Components
             
             if (_legacyMode)
             {
-                result = KrutidevConverter.Convert(result);
+                result = KrutidevConverter.Convert(result, null);
             }
             
             return result;

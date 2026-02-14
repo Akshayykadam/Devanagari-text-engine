@@ -8,23 +8,22 @@ namespace DevanagariText.TextProcessing
 {
     /// <summary>
     /// Converts Unicode Devanagari text to Kruti Dev 010 encoding.
-    /// Non-Devanagari text (English, numbers, symbols like ₹) passes through unchanged,
-    /// making it safe for mixed-language strings.
+    /// Non-Devanagari text (English, numbers, ₹) is wrapped in TMP font tags
+    /// so it renders with a standard font instead of KrutiDev's remapped glyphs.
     /// </summary>
     public static class KrutidevConverter
     {
         // ── Mapping table ─────────────────────────────────────────────
-        // Order: longest match first — ligatures before halant forms before base chars.
-        
+
         private static readonly Dictionary<string, string> _unicodeToKruti = new Dictionary<string, string>
         {
-            // ── Specific ligatures (3-char sequences stored as 2 Unicode chars) ──
+            // ── Ligatures (2 Unicode chars) ──
             { "क्ष", "{k" }, { "त्र", "=" }, { "ज्ञ", "K" }, { "श्र", "J" },
             { "द्व", "}" }, { "द्य", "| " }, { "क्र", "Ø" }, { "ट्र", "Vª" },
             { "ड्र", "Mª" }, { "त्त", "Ùk" }, { "द्ध", "˜" }, { "द्द", "»" },
             { "हृ", "â" }, { "ह्म", "ã" }, { "ह्य", "á" }, { "ह्र", "º" },
 
-            // ── Conjuncts / Halant forms (consonant + halant) ──
+            // ── Halant forms (consonant + halant) ──
             { "क्", "D" }, { "ख्", "K" }, { "ग्", "X" }, { "घ्", "?" }, 
             { "च्", "P" }, { "छ्", "N~" }, { "ज्", "T" }, { "झ्", "Ö~" }, 
             { "ञ्", "¥~" }, { "ट्", "V~" }, { "ठ्", "B~" }, { "ड्", "M~" },
@@ -49,11 +48,10 @@ namespace DevanagariText.TextProcessing
             { "प", "i" }, { "फ", "Q" }, { "ब", "c" }, { "भ", "Hk" }, { "म", "e" },
             { "य", "k" }, { "र", "j" }, { "ल", "y" }, { "व", "o" },
             { "श", "'k" }, { "ष", "\"k" }, { "स", "l" }, { "ह", "g" },
-            // Marathi-specific
             { "ळ", "G" }, { "ऱ", "j" },
 
-            // ── Matras & combining marks ──
-            { "ो", "ks" }, { "ौ", "kS" },   // multi-char matras first
+            // ── Matras & marks ──
+            { "ो", "ks" }, { "ौ", "kS" },
             { "ा", "k" }, { "ि", "f" }, { "ी", "h" }, { "ु", "q" }, { "ू", "w" },
             { "ृ", "`" }, { "े", "s" }, { "ै", "S" },
             { "ं", "a" }, { "ः", "%" }, { "ँ", "¡" }, { "़", "+" }, { "्", "~" },
@@ -62,12 +60,12 @@ namespace DevanagariText.TextProcessing
             { "।", "A" },
         };
 
-        // ── Pre-computed consonant range check ────────────────────────
-        
+        // ── Helpers ───────────────────────────────────────────────────
+
         private static bool IsDevanagariOrMark(char c)
         {
-            return (c >= 0x0900 && c <= 0x097F)   // Main Devanagari block
-                || (c >= 0xA8E0 && c <= 0xA8FF);  // Devanagari Extended
+            return (c >= 0x0900 && c <= 0x097F)
+                || (c >= 0xA8E0 && c <= 0xA8FF);
         }
 
         private static bool IsDevanagariConsonant(char c)
@@ -79,26 +77,48 @@ namespace DevanagariText.TextProcessing
 
         /// <summary>
         /// Converts Unicode Devanagari text to Kruti Dev 010 encoding.
-        /// Non-Devanagari characters (Latin, digits, ₹, etc.) pass through unchanged.
+        /// Non-Devanagari characters are wrapped in TMP font tags using the
+        /// specified fallback font so they render correctly alongside KrutiDev.
         /// </summary>
-        public static string Convert(string unicodeText)
+        /// <param name="unicodeText">Input text (may contain mixed scripts).</param>
+        /// <param name="fallbackFontName">
+        /// TMP font asset name for non-Devanagari text (e.g. "LiberationSans SDF").
+        /// If null or empty, non-Devanagari text passes through without font tags.
+        /// </param>
+        public static string Convert(string unicodeText, string fallbackFontName = null)
         {
             if (string.IsNullOrEmpty(unicodeText)) return unicodeText;
 
+            bool useFontTags = !string.IsNullOrEmpty(fallbackFontName);
             var result = new StringBuilder(unicodeText.Length);
             int len = unicodeText.Length;
             int i = 0;
 
             while (i < len)
             {
-                // Fast path: non-Devanagari chars pass through as-is
+                // ── Non-Devanagari run ──
                 if (!IsDevanagariOrMark(unicodeText[i]))
                 {
-                    result.Append(unicodeText[i++]);
+                    int runStart = i;
+                    while (i < len && !IsDevanagariOrMark(unicodeText[i]))
+                        i++;
+
+                    if (useFontTags)
+                    {
+                        result.Append("<font=\"");
+                        result.Append(fallbackFontName);
+                        result.Append("\">");
+                        result.Append(unicodeText, runStart, i - runStart);
+                        result.Append("</font>");
+                    }
+                    else
+                    {
+                        result.Append(unicodeText, runStart, i - runStart);
+                    }
                     continue;
                 }
 
-                // Collect contiguous Devanagari segment
+                // ── Devanagari run ──
                 int segStart = i;
                 while (i < len && IsDevanagariOrMark(unicodeText[i]))
                     i++;
@@ -109,21 +129,18 @@ namespace DevanagariText.TextProcessing
             return result.ToString();
         }
 
-        // ── Internal conversion ───────────────────────────────────────
+        // ── Internal ──────────────────────────────────────────────────
 
         private static void ConvertSegment(string source, int offset, int length, StringBuilder output)
         {
-            // Pre-process matras into a working buffer
             string processed = PreProcessMatras(source, offset, length);
-
-            int i = 0;
             int pLen = processed.Length;
+            int i = 0;
 
             while (i < pLen)
             {
                 bool matched = false;
 
-                // Try 2-char key first (covers halant forms, multi-char matras, ligatures)
                 if (i < pLen - 1)
                 {
                     string key2 = processed.Substring(i, 2);
@@ -141,18 +158,16 @@ namespace DevanagariText.TextProcessing
                     if (_unicodeToKruti.TryGetValue(key1, out string val1))
                         output.Append(val1);
                     else
-                        output.Append(key1); // unmapped — pass through
+                        output.Append(key1);
                     i++;
                 }
             }
         }
 
-        // Moves ि (chhoti ee, U+093F) before its consonant cluster,
-        // since KrutiDev expects the visual order (left of consonant).
         private static string PreProcessMatras(string text, int offset, int length)
         {
-            const char matraI = '\u093F'; // ि
-            const char halant = '\u094D'; // ्
+            const char matraI = '\u093F';
+            const char halant = '\u094D';
 
             var sb = new StringBuilder(text, offset, length, length + 4);
 

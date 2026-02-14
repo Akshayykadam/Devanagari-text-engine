@@ -58,7 +58,7 @@ using DevanagariText.Components;
 
 // Set text — auto-converts if Legacy Mode is on
 var fixer = GetComponent<DevanagariTextFixer>();
-fixer.Text = "Hello नमस्ते ₹999";
+fixer.Text = "Hello नमस्ते 999";
 
 // Manual conversion
 using DevanagariText.TextProcessing;

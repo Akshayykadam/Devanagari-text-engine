@@ -161,7 +161,7 @@ namespace DevanagariText.Components
                 
                 if (_legacyMode)
                 {
-                    result = KrutidevConverter.Convert(result);
+                    result = KrutidevConverter.Convert(result, null);
                 }
                 
                 if (_legacyText.text != result) _legacyText.text = result;
