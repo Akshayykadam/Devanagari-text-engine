@@ -2,82 +2,78 @@
 
 **Unified Hindi, Marathi & Kruti Dev text rendering for Unity.**
 
-This package solves the common issues with rendering Devanagari script in Unity, such as broken conjuncts (e.g., क्ष, त्र), detached matras, and missing ligatures. It supports both **Unicode** (standard) and **Legacy** (Kruti Dev) workflows.
+Solves broken conjuncts (क्ष, त्र), detached matras, and missing ligatures in Unity's text components. Supports **Unicode** and **Legacy (Kruti Dev)** workflows with full mixed-language text support.
 
 ## Features
 
-- ✅ **Unicode Support** — Proper NFC normalization for Hindi & Marathi
-- ✅ **Legacy Mode (Kruti Dev)** — Auto-converts Unicode text to Kruti Dev encoding on the fly
-- ✅ **Input Fields** — Type in Hindi/Marathi and see it render correctly (even in Legacy Mode!)
-- ✅ **Unified Package** — Single solution for both Hindi & Marathi languages
-- ✅ **TextMeshPro & Legacy Text** — Works with both UI systems
-- ✅ **Zero-Config** — "Legacy Mode" is enabled by default for immediate results
-- ✅ **Editor Tools** — Font validator, demo scenes, and easy testing
-- ✅ **Bundled Assets** — Includes `KrutiDev010.ttf` and TMP Asset
+- ✅ **Unicode NFC Normalization** — fixes broken conjuncts for Hindi & Marathi
+- ✅ **Legacy Mode (Kruti Dev)** — auto-converts Unicode to Kruti Dev encoding on the fly
+- ✅ **Mixed-Language Safe** — English, numbers, and symbols (₹, etc.) pass through unchanged in Legacy Mode
+- ✅ **Marathi Support** — proper ळ (LLA) and ऱ (Eyelash Ra) handling
+- ✅ **Input Fields** — real-time conversion while typing (TMP & Legacy)
+- ✅ **Devanagari Numerals** — toggle between Western (0-9) and Devanagari (०-९)
+- ✅ **TextMeshPro & Legacy Text** — works with both UI systems
+- ✅ **Zero-Config** — attach component, assign font, done
+- ✅ **Editor Tools** — font validator, demo scenes, easy testing
+- ✅ **Bundled Assets** — includes `KrutiDev010.ttf` and pre-built TMP SDF asset
 
 ## Quick Start
 
-### 1. Install
-Add the package to your project.
+### Legacy Mode (Recommended — Kruti Dev Font)
 
-### 2. Legacy Mode (Recommended for Kruti Dev)
-If you are using the **Kruti Dev** font (standard for many Hindi typing needs):
+1. Add `Devanagari Text Fixer` (or `Devanagari Text Mesh Pro`) to your GameObject.
+2. Assign the included **`KrutiDev010_SDF`** font asset to your TMP component.
+3. **Done!** Legacy Mode is on by default — Hindi/Marathi text renders correctly out of the box.
 
-1.  **Add Component**: Add `Devanagari Text Mesh Pro` (or `Devanagari Text Fixer`) to your GameObject.
-2.  **Assign Font**: Ensure your TextMeshPro component uses the included **`KrutiDev010_SDF`** asset.
-3.  **Done!**: The **Legacy Mode** toggle is on by default. Any Hindi text you type in the Inspector or set via script will automatically render correctly.
+> **Mixed text works too:** A string like `"Hello नमस्ते ₹999 बाळ"` will convert only the Devanagari portions, leaving English and symbols untouched.
 
-> **Note**: In Legacy Mode, you don't need to select a language. The engine handles the font-specific mapping automatically.
+### Unicode Mode (Noto Sans / Google Fonts)
 
-### 3. Unicode Mode (Standard/Google Fonts)
-If you are using a Unicode font like **Noto Sans** or **Poppins**:
-
-1.  **Uncheck Legacy Mode**: In the component inspector, disable "Legacy Mode".
-2.  **Select Language**: Choose **Hindi** or **Marathi** (crucial for correct rendering of characters like `ळ` and `ऱ`).
-3.  **Assign Font**: Use a Unicode-compliant Devanagari font.
+1. Uncheck **Legacy Mode** in the Inspector.
+2. Select **Hindi** or **Marathi** (important for `ळ` / `ऱ` handling).
+3. Assign a Unicode-compliant Devanagari font.
 
 ## Input Fields
 
-This package fixes the issue where typing in an Input Field shows square boxes or broken characters.
-
-1.  Create a **TMP Input Field**.
-2.  Add the `Devanagari TMP Input Field` component.
-3.  Assign the **KrutiDev010_SDF** font asset to the Input Field's Text Component.
-4.  **Play**: As you type, the text is automatically converted and shaped in real-time. Supports placeholder text too!
+1. Create a **TMP Input Field**.
+2. Add the `Devanagari TMP Input Field` component.
+3. Assign **KrutiDev010_SDF** to the Input Field's Text Component.
+4. **Play** — text converts and shapes in real-time as you type. Placeholder text is supported.
 
 ## Components
 
 | Component | Description |
 |-----------|-------------|
-| `DevanagariTextFixer` | Universal fixer. Attach to any object with Text/TMP to fix it. |
-| `DevanagariTextMeshProUGUI` | A standalone TMP UGUI component with built-in fixing. |
-| `DevanagariTextMeshPro` | A standalone 3D TMP component. |
+| `DevanagariTextFixer` | Universal fixer. Attach to any Text/TMP object. |
+| `DevanagariTextMeshProUGUI` | Standalone TMP UGUI with built-in fixing. |
+| `DevanagariTextMeshPro` | Standalone 3D TMP component. |
 | `DevanagariLegacyText` | For Unity's legacy `Text` UI. |
-| `DevanagariTMPInputField` | **New!** Auto-fixes input text and placeholders while typing. |
-| `DevanagariLegacyInputField`| **New!** Same as above, for legacy Input Fields. |
+| `DevanagariTMPInputField` | Auto-fixes input text and placeholders while typing. |
+| `DevanagariLegacyInputField` | Same as above, for legacy Input Fields. |
 
 ## Programmatic Usage
 
 ```csharp
 using DevanagariText.Components;
 
-// 1. Basic Text Setting
+// Set text — auto-converts if Legacy Mode is on
 var fixer = GetComponent<DevanagariTextFixer>();
-fixer.Text = "नमस्ते दुनिया"; // Automatically converts if Legacy Mode is on
+fixer.Text = "Hello नमस्ते ₹999";
 
-// 2. Manual Conversion (if needed)
+// Manual conversion
 using DevanagariText.TextProcessing;
-string krutiText = KrutidevConverter.Convert("नमस्ते"); 
-// Returns encoded string for Kruti Dev font
+string krutiText = KrutidevConverter.Convert("नमस्ते");
 ```
 
 ## Folder Structure
 ```
 com.akshay.devanagari-text-engine/
 ├── Runtime/
-│   ├── Fonts/          # Includes Kruti Dev & Noto Sans assets
+│   ├── Fonts/          # Kruti Dev & Noto Sans assets
 │   ├── Components/     # All script components
-│   └── ...
+│   ├── TextProcessing/  # Converter, normalizer, search
+│   ├── Core/           # Unicode ranges, language enum
+│   └── Shaping/        # Text processor, cache
 └── Editor/             # Custom Inspectors & Tools
 ```
 
